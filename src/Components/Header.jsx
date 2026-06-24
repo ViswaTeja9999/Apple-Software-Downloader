@@ -1,93 +1,106 @@
-import { Grid, makeStyles, Paper, Typography,Hidden } from '@material-ui/core'
-import React, { useState } from 'react'
+import { Grid, makeStyles, Typography, Switch } from '@material-ui/core';
+import Brightness2Icon from '@material-ui/icons/Brightness2';
+import WbSunnyIcon from '@material-ui/icons/WbSunny';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { GlobalContext } from '../Context/GlobalState';
 
 function Header() {
-    const [greeting,setGreeting]=useState();
-    const useStyles=makeStyles((theme)=>({
-        root:{
-            height:theme.spacing(6),
-            overflow:'hidden'
+    const { darkMode, toggleDarkMode } = useContext(GlobalContext);
+    const [greeting, setGreeting] = useState('');
+
+    useEffect(() => {
+        const tick = () => {
+            const now = new Date();
+            let h = now.getHours();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
+            const apm = h >= 12 ? 'PM' : 'AM';
+            let msg = h >= 4 && h < 12 ? 'Good Morning'
+                : h >= 12 && h < 16 ? 'Good Afternoon'
+                : h >= 16 && h < 20 ? 'Good Evening'
+                : 'Good Night';
+            if (h > 12) h -= 12;
+            const pad = n => String(n).padStart(2, '0');
+            setGreeting(`${msg}, ${pad(h)}:${pad(m)}:${pad(s)} ${apm}`);
+        };
+        tick();
+        const id = setInterval(tick, 1000);
+        return () => clearInterval(id);
+    }, []);
+
+    const glassStyle = {
+        background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.45)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        borderBottom: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(255,255,255,0.7)',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.15)',
+    };
+
+    const useStyles = makeStyles(() => ({
+        root: { height: '52px' },
+        bar: {
+            ...glassStyle,
+            height: '52px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0 20px',
         },
-        paper:{
-            height:'90%',
-            display:'flex',
-            alignContent:'center',
-            background:'black',
-            justifyContent:'space-between',
-            border:'1px solid grey',
+        link: {
+            textDecoration: 'none',
+            color: darkMode ? '#ffffff' : '#1c1c1e',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
         },
-        link:{
-            textDecoration:"none",
-            color:'orange',
-            padding:theme.spacing(1),
-            marginRight:'20px',
+        logo: {
+            fontSize: '22px',
+            fontWeight: '600',
+            letterSpacing: '-0.3px',
         },
-        greeting:{
-            color:'white',
-            padding:theme.spacing(1),
-        }
-    }))
-    const classes=useStyles();
-    const getapm=(x)=>{
-        if(x>12){
-            return 'PM';
-        }
-        else{
-            return 'AM';
-        }
-    }
-    const gettime=(x,y,z)=>{
-        if(x>12){
-            x=x-12;
-        }
-        if(x<10){
-            x='0'+x;
-        }
-        if(y<10){
-            y='0'+y;
-        }
-        if(z<10){
-            z='0'+z;
-        }
-        return x+':'+y+':'+z;
-    }
-    const getmsg=(y)=>{
-        if(y>=4&&y<12){
-            return 'Good Morning';
-        }else if(y>=12&&y<16){
-            return 'Good Afternoon';
-        }else if(y>=16&&y<20){
-            return 'Good Evening';
-        }else {
-            return 'Good Night';
-        }
-    }
-    const greetmsg=()=>{
-        const today=new Date();
-        const x= today.getHours();
-        const y=today.getMinutes();
-        const z=today.getSeconds();
-        const msg=getmsg(x);
-        const clockformat=gettime(x,y,z);
-        const apm=getapm(x);
-        const time=clockformat;
-        const result=msg+','+time+' '+apm;
-        setGreeting(result); 
-    }
-    setInterval(greetmsg,1000);
+        apple: { color: '#0071e3' },
+        right: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+        },
+        greeting: {
+            color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)',
+            fontSize: '13px',
+        },
+        modeIcon: {
+            color: darkMode ? '#f5c518' : '#0071e3',
+            fontSize: '18px',
+        },
+    }));
+    const classes = useStyles();
+
     return (
-        <Grid container  className={classes.root}>
+        <Grid container className={classes.root}>
             <Grid item xs={12}>
-               <Paper className={classes.paper} square>
-                  <Link to='/' className={classes.link}><Typography variant='h5'> Software Downloader</Typography></Link>
-                  <Hidden xsDown>
-                  <Typography variant='h6' className={classes.greeting}>{greeting}</Typography>
-                  </Hidden>
-               </Paper>
+                <div className={classes.bar}>
+                    <Link to='/' className={classes.link}>
+                        <Typography className={`${classes.logo} ${classes.apple}`}></Typography>
+                        <Typography className={classes.logo}> Software Downloader</Typography>
+                    </Link>
+                    <div className={classes.right}>
+                        <Typography className={classes.greeting}>{greeting}</Typography>
+                        {darkMode
+                            ? <Brightness2Icon className={classes.modeIcon} />
+                            : <WbSunnyIcon className={classes.modeIcon} />
+                        }
+                        <Switch
+                            checked={!darkMode}
+                            onChange={toggleDarkMode}
+                            color="primary"
+                            size="small"
+                        />
+                    </div>
+                </div>
             </Grid>
         </Grid>
-    )
+    );
 }
 
-export default Header
+export default Header;

@@ -1,54 +1,71 @@
-import { Grid, makeStyles, Paper, Typography ,Button} from '@material-ui/core'
+import { Grid, makeStyles, Typography, Button } from '@material-ui/core';
 import TouchAppIcon from '@material-ui/icons/TouchApp';
 import DevicesOtherIcon from '@material-ui/icons/DevicesOther';
 import SystemUpdateIcon from '@material-ui/icons/SystemUpdate';
-import React from 'react'
+import React, { useContext } from 'react';
+import { GlobalContext } from '../Context/GlobalState';
 
 function StatusSideBar(props) {
-    const useStyles=makeStyles((theme)=>({
-        root:{
-            height:'100vh',
+    const { darkMode } = useContext(GlobalContext);
+
+    const useStyles = makeStyles((theme) => ({
+        root: { height: '100%' },
+        sidebar: {
+            height: '100%',
+            background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.35)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRight: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.6)',
+            display: 'flex',
+            flexDirection: 'column',
+            paddingTop: theme.spacing(4),
         },
-        paper:{
-            height:'100vh',
-            background:'black',
-            color:'white',
-            borderRight:'5px solid orange',
-        },
-        button:{
-            width:'100%',
-            background:'orange',
-            color:'black',
-            '&:disabled':{
-                color:'grey',
-                background:'none',
+        step: {
+            width: '100%',
+            justifyContent: 'flex-start',
+            padding: theme.spacing(2, 3),
+            marginBottom: theme.spacing(1),
+            borderRadius: 0,
+            color: darkMode ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.75)',
+            background: 'transparent',
+            textTransform: 'none',
+            '&:disabled': {
+                color: darkMode ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)',
+                background: 'transparent',
             },
-            '&:hover':{
-                background:'orange',
-                color:'black',
-                opacity:'0.5', 
+            '&:not(:disabled)': {
+                background: darkMode ? 'rgba(0,113,227,0.15)' : 'rgba(0,113,227,0.1)',
+                borderLeft: '3px solid #0071e3',
             },
-            height:'100px',
-            alignItems:'left',
-            marginTop:theme.spacing(5),
-            marginBottom:theme.spacing(5),
         },
-    }))
-    const classes=useStyles();
-    const firstbar=props.one;
-    const secondbar=props.two;
-    const thirdbar=props.three;
+        label: { fontSize: '13px', fontWeight: 500 },
+    }));
+    const classes = useStyles();
+
+    const steps = [
+        { icon: <DevicesOtherIcon />, label: 'Choose Your Device', disabled: props.one },
+        { icon: <TouchAppIcon />, label: 'Select Software', disabled: props.two },
+        { icon: <SystemUpdateIcon />, label: 'Download', disabled: props.three },
+    ];
+
     return (
-        <Grid container  className={classes.root}>
+        <Grid container className={classes.root}>
             <Grid item xs={12}>
-                <Paper square className={classes.paper}>
-                    <Button startIcon={<DevicesOtherIcon/>} className={classes.button} disabled={firstbar}><Typography>Choose Your Device</Typography></Button>
-                    <Button startIcon={<TouchAppIcon/>} className={classes.button} disabled={secondbar}><Typography>Select Software</Typography></Button>
-                    <Button startIcon={<SystemUpdateIcon/>} className={classes.button} disabled={thirdbar}><Typography>Download</Typography></Button>
-                </Paper>
+                <div className={classes.sidebar}>
+                    {steps.map(s => (
+                        <Button
+                            key={s.label}
+                            startIcon={s.icon}
+                            className={classes.step}
+                            disabled={s.disabled}
+                        >
+                            <Typography className={classes.label}>{s.label}</Typography>
+                        </Button>
+                    ))}
+                </div>
             </Grid>
         </Grid>
-    )
+    );
 }
 
-export default StatusSideBar
+export default StatusSideBar;
