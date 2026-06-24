@@ -17,8 +17,6 @@ function DevicePage({ deviceType }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [deviceType]);
 
-    const devicePath = deviceType === 'Mac' ? '/mac' : `/${deviceType}`;
-
     const getYear = (identifier) => deviceImageMap[identifier]?.year || null;
 
     const searchFiltered = deviceList.filter(device =>
